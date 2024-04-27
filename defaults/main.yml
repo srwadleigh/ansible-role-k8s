@@ -1,0 +1,83 @@
+---
+# this toggle provides a dangerous way to quickly destroy an entire cluster
+# ansible-playbook -i prod/ site.yml --tags=k8s --extra-vars 'k8s_action=destroy' --limit=k3s_innocent_cluster
+# create | destroy 
+k8s_action: create
+
+# k3s | rke2
+k8s_type: k3s
+k8s_channel: stable
+
+k8s_cluster_name: default
+k8s_cluster_url: localhost
+
+# bootstrap | server | agent
+k8s_node_type: bootstrap
+k8s_node_ip: "{{ ansible_host }}"
+
+# sysctl set fs.inotify.max_user_instances
+k8s_inotify_max: 1024
+
+# hardcoded kublet default value is 110
+k8s_pod_limit: 110
+
+# we can set this by platform later
+k8s_selinux: false
+
+# if the host is using network manager, see vars/sys/ for overrides
+k8s_has_nm: false
+
+# if the host is using an http proxy
+k8s_http_proxy: false
+
+# cni
+# k8s_cni_type:
+
+k8s_config_mode: 600
+k8s_api_port: 6443
+k8s_debug: false
+k8s_skip_start: false
+k8s_taint_servers: false
+k8s_flannel_wireguard: false
+k8s_disable_kube_proxy: false
+
+# paths
+k8s_install_script: /usr/local/bin/{{ k8s_type }}-install.sh
+k8s_config_path: "/etc/rancher/{{ k8s_type }}"
+k8s_cmd_path: /usr/local/bin
+k8s_nm_path: /etc/NetworkManager/conf.d
+
+k8s_manifests_path: "/var/lib/rancher/{{ k8s_type }}/server/manifests/"
+
+# if defined, install manifests
+# k8s_manifests:
+#  - name: cert-manager
+#    path: https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.yaml
+
+# Override
+# k8s_cluster_name
+# k8s_cluster_url
+
+# Define
+# k8s_cluster_token
+# you can pre-generate this ina vault with the token.sh script
+
+# k8s_node_taints
+# --node-taint CriticalAddonsOnly=true:NoExecute
+# k8s_node_taints:
+#  - name: CriticalAddonsOnly
+#    value: true
+#    effect: NoExecute
+
+# these are provided simply for the opportunity to override in cases where some ajustment isnt supported by the config templates
+# k8s_install_bootstrap: >-
+#  server --cluster-init --tls-san {{ k8s_cluster_url }} --node-taint CriticalAddonsOnly=true:NoExecute
+#  {% if k8s_disable is defined %}
+#  {% for disable in k8s_disable %}
+#  --disable={{ disable }}
+#  {% endfor %}
+#  {% endif %}
+
+# k8s_install_agent: >-
+#  agent --kubelet-arg=config=/etc/rancher/k3s/kubelet.config --node-ip={{ ansible_host }}
+#  {% if k8s_external_ip is defined %}--node-external-ip={{ k8s_external_ip }}{% endif %}

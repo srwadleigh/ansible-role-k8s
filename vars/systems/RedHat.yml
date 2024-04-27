@@ -1,0 +1,4 @@
+---
+k8s_selinux: true
+k8s_has_nm: true
+k8s_cmd_path: /usr/bin

@@ -1,0 +1,152 @@
+---
+- name: Setup Environment
+  tags: 
+    - k8s
+    - k8s-config
+  block:
+  
+  - name: gather local facts
+    set_fact:
+      local_user: "{{ lookup('env', 'USER') }}"
+      delegate_to: localhost
+
+  # useful to set this bc k8s_node_type has a special value bootstrap which is not an actual type
+  - name: set true node type
+    set_fact:
+      node_type: "{{ 'agent' if k8s_node_type == 'agent' else 'server' }}"
+
+  - name: load type specific values
+    ansible.builtin.include_vars:
+      file:  "types/{{ k8s_type }}.yml"
+
+  - name: load system specific values
+    ansible.builtin.include_vars: "{{ item }}"
+    with_first_found:
+      - files:
+          - "systems/{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+          - "systems/{{ ansible_os_family }}.yml"
+          - "systems/{{ ansible_distribution }}.yml"
+          - "systems/{{ ansible_system }}.yml"
+        skip: true
+
+#
+# CREATE CLUSTER
+#
+- name: Cluster Creation
+  tags: k8s
+  block:
+  
+  - name: load server node taints
+    ansible.builtin.include_vars:
+      file:  "server-taint.yml"
+    when:
+      - k8s_taint_servers and k8s_node_type != "agent"
+  
+  - name: increase open file limit
+    ansible.posix.sysctl:
+      name: fs.inotify.max_user_instances
+      value: "{{ k8s_inotify_max }}"
+      state: present
+
+  - name: download install script
+    ansible.builtin.get_url:
+      url: "{{ k8s_install_url }}"
+      timeout: 120
+      dest: "{{ k8s_install_script }}"
+      owner: root
+      group: root
+      mode: 0755
+
+  # CLUSTER CONFIG
+  - name: check config paths
+    ansible.builtin.file:
+      path: "{{ item }}"
+      state: directory
+      mode: 0755
+    loop:
+      - "{{ k8s_config_path }}"
+      - "{{ k8s_manifests_path }}"
+    tags:
+      - k8s-config
+  
+  - name: template cluster config
+    ansible.builtin.template:
+      src: "templates/{{ k8s_type }}-config.yaml.j2"
+      dest: "{{ k8s_config_path }}/config.yaml"
+      mode: 0600
+    tags:
+      - k8s-config
+  
+  - name: type specific configuration
+    ansible.builtin.include_tasks: "{{ k8s_type }}/config.yml"
+    tags:
+      - k8s-config
+
+  # DEPLOY CLUSTER
+  - name: beging cluster creation
+    ansible.builtin.include_tasks: "{{ k8s_type }}/main.yml"
+
+  # KUBE CONFIG
+  - name: fetch kube config
+    ansible.builtin.fetch:
+      src: "{{ k8s_config_path }}/{{ k8s_type }}.yaml"
+      dest: "~/.kube/config-{{ k8s_cluster_name }}.yaml"
+      flat: yes
+    notify: 
+      - k8s-update-local-config
+    when: 
+      - k8s_node_type == "bootstrap"
+    tags:
+      - k8s-get-kubeconf
+  
+  # DEPLOY MANIFESTS
+  
+  # END Cluster Creation
+  when: 
+    - k8s_action == "create"
+
+#
+# DESTORY CLUSTER
+#
+# this is very dangerous and should be handled with care when not actively testing with disposable cluster iterations
+- name: Destroy K8s cluster
+  tags: k8s
+  block:
+
+  - name: confirm cluster destruction
+    delegate_to: localhost
+    run_once: true
+    become: false
+    pause:
+      prompt: "=== WARNING === Are you sure you want to DESTROY the cluster: {{ k8s_cluster_name | string | upper }}? (yes/no)"
+    register: destroy_confirmation
+
+  - name: set confirmation fact
+    set_fact:
+      cluster_destruction: "{{ destroy_confirmation.user_input }}"
+
+  - name: delete cluster config
+    delegate_to: localhost
+    run_once: true
+    become: false
+    file:
+      path: "~/.kube/config-{{ k8s_cluster_name }}.yaml"
+      state: absent
+    when:
+      - cluster_destruction
+  
+  - name: destroy nodes
+    ansible.builtin.shell: "{{ k8s_cmd_path }}/{{ k8s_type }}-uninstall.sh"
+    when:
+      - k8s_node_type != "agent" or k8s_type == "rke2"
+      - cluster_destruction
+
+  - name: destroy k3s agent nodes
+    ansible.builtin.shell: "{{ k8s_cmd_path }}/{{ k8s_type }}-agent-uninstall.sh"
+    when:
+      - k8s_node_type == "agent" and k8s_type == "k3s"
+      - cluster_destruction
+
+  # END Cluster Destruction
+  when: 
+    - k8s_action == "destroy"

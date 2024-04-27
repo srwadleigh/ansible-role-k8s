@@ -1,0 +1,22 @@
+---
+
+  # BOOTSTRAP
+  - name: k3s boostrap initial server node
+    ansible.builtin.shell: "{{ k8s_install_script }}"
+    environment: "{{ k8s_env | combine({'INSTALL_K3S_EXEC': '{{ k8s_install_bootstrap }}'}) }}"
+    when:
+      - k8s_node_type == "bootstrap"
+
+  # ADD SERVERS
+  - name: k3s add additional server nodes
+    ansible.builtin.shell: "{{ k8s_install_script }}"
+    environment: "{{ k8s_env | combine({'INSTALL_K3S_EXEC': '{{ k8s_install_server }}'}) }}"
+    when:
+      - k8s_node_type == "server"
+
+  # ADD AGENTS
+  - name: k3s add agent nodes
+    ansible.builtin.shell: "{{ k8s_install_script }}"
+    environment: "{{ k8s_env | combine({'INSTALL_K3S_EXEC': '{{ k8s_install_agent }}'}) }}"
+    when:
+      - k8s_node_type == "agent"

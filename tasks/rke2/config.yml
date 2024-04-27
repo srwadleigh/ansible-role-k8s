@@ -1,0 +1,19 @@
+---
+
+  # HTTP PROXY
+  - name: http proxy tasks
+    ansible.builtin.include_tasks: "{{ k8s_type }}/proxy.yml"
+    tags:
+      - k8s-config
+
+  # CANAL NM CONFIG
+  - name: template nm canal config
+    ansible.builtin.template:
+      src: "templates/{{ k8s_type }}-canal.conf.j2"
+      dest: "{{ k8s_nm_path }}/{{ k8s_type }}-canal.conf"
+      mode: 0600
+    when:
+      - k8s_cni_type == "canal"
+      - k8s_has_nm
+    tags:
+      - k8s-config

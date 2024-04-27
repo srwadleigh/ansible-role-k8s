@@ -1,0 +1,38 @@
+---
+dependencies: []
+
+galaxy_info:
+  role_name: k8s
+  author: srw
+  description: Ansible role for configuring k3s and rke2 kubernetes clusters
+  company: "NMD, LLC"
+  license: "license (BSD, MIT)"
+  min_ansible_version: "2.10"
+  platforms:
+    - name: Fedora
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - buster
+        - bullseye
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+        - jammy
+    - name: Alpine
+      version:
+        - all
+    - name: ArchLinux
+      versions:
+        - all
+  galaxy_tags:
+    - server
+    - system
+    - containers
+    - kubernetes
+    - k8s
+    - k3s
+    - rke2

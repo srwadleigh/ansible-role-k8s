@@ -1,0 +1,8 @@
+---
+
+  # PRE-DEPLOY
+  - name: template k3s kubelet config
+    ansible.builtin.template:
+      src: "templates/k3s-kubelet.config.j2"
+      dest: "/etc/rancher/k3s/kubelet.config"
+      mode: 0644

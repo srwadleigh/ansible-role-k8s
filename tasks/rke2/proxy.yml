@@ -1,0 +1,50 @@
+---
+- name: http proxy detection and setup
+  tags:
+    - k8s
+    - k8s-config
+  block:
+
+  - name: check for existing http_proxy
+    shell: echo $http_proxy
+    register: http_proxy
+    ignore_errors: true
+    changed_when: false
+  
+  - name: check for existing https_proxy
+    shell: echo $https_proxy
+    register: https_proxy
+    ignore_errors: true
+    changed_when: false
+
+  - name: check for existing no_proxy
+    shell: echo $no_proxy
+    register: no_proxy
+    ignore_errors: true
+    changed_when: false
+    
+  - name: Set fact for HTTP_PROXY
+    set_fact:
+      k8s_http_proxy: "{{ http_proxy.stdout | default('') }}"
+    when:
+      - http_proxy.stdout != ""
+
+  - name: Set fact for HTTPS_PROXY
+    set_fact:
+      k8s_https_proxy: "{{ https_proxy.stdout | default('') }}"
+    when:
+      - https_proxy.stdout != ""
+
+  - name: Set fact for NO_PROXY
+    set_fact:
+      k8s_no_proxy: "{{ no_proxy.stdout | default('') }}"
+    when: no_proxy.stdout != ""
+
+  - name: template rke2 http proxy
+    ansible.builtin.template:
+      src: "templates/{{ k8s_type }}-proxy.j2"
+      dest: "/etc/default/rke2-{{ node_type }}"
+      mode: 0644
+    when:
+      - http_proxy.stdout != ""
+      - https_proxy.stdout != ""

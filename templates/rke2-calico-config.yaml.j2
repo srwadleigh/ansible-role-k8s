@@ -1,0 +1,13 @@
+# template generated via ansible by {{ local_user }} at {{ ansible_date_time.date }} {{ ansible_date_time.time }}
+# /var/lib/rancher/rke2/server/manifests/rke2-calico-config.yaml
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: rke2-calico
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    installation:
+      calicoNetwork:
+        mtu: 9000

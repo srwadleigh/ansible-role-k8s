@@ -1,0 +1,81 @@
+# template generated via ansible by {{ local_user }} at {{ ansible_date_time.date }} {{ ansible_date_time.time }}
+
+token: {{ k8s_cluster_token }}
+{% if k8s_cluster_url is defined and k8s_node_type != "bootstrap" -%}
+server: https://{{ k8s_cluster_url }}:{{ k8s_supervisor_port }}
+{% endif -%}
+debug: {{ k8s_debug | string | lower }}
+{% if k8s_node_type != "agent" -%}
+write-kubeconfig-mode: {{ k8s_config_mode }}
+{% if k8s_tls_san is defined and k8s_node_type != "agent" -%}
+{% for san in k8s_tls_san -%}
+tls-san:
+  - "{{ san }}"
+{% endfor -%}
+{% elif k8s_cluster_url is defined and k8s_node_type != "agent" -%}
+tls-san: {{ k8s_cluster_url }}
+{% endif %}
+{% if k8s_selinux -%}
+selinux: true
+{% endif -%}
+
+{% if k8s_cni_type is defined -%}
+cni: {{ k8s_cni_type }}
+{% endif -%}
+{% if k8s_disable_kube_proxy %}
+disable-kube-proxy: true
+{% endif -%}
+{% if k8s_disable is defined and k8s_node_type != "agent" %}
+# disable builtin services
+{% for disable in k8s_disable %}
+disable: {{ disable }}
+{% endfor -%}
+{% endif -%}
+{% endif %}
+
+# node network
+{% if k8s_node_ip is defined -%}
+node-ip: {{ k8s_node_ip }}
+{% endif -%}
+{% if k8s_external_ip is defined -%}
+node-external-ip: {{ k8s_external_ip }}
+{% endif -%}
+
+{% if k8s_flannel_backend is defined and k8s_node_type != "agent" -%}
+# cofigure or disable flannel cni
+flannel-backend: {{ k8s_flannel_backend }}
+flannel-ipv6-masq: {{ k8s_flannel_ipv6_masq }}
+flannel-external-ip: {{ k8s_flannel_external_ip }}
+{% endif %}
+
+{% if k8s_node_taints is defined -%}
+# initial node taints
+{% for taint in k8s_node_taints -%}
+node-taint:
+  - "{{ taint.name }}={{ taint.value }}:{{ taint.effect }}"
+{% endfor -%}
+{% endif %}
+
+{% if k8s_node_lables is defined -%}
+# initial node labels
+{% for label in k8s_node_lables -%}
+node-label:
+  - "{{ label.name }}={{ label.value }}"
+{% endfor -%}
+{% endif %}
+
+{% if k8s_kubelet_args is defined %}
+# kubelet configuration
+{% for kublet_arg in k8s_kubelet_args %}
+kubelet-arg:
+  - "{{ kublet_arg }}"
+
+{% endfor -%}
+{% endif %}
+
+{% if k8s_additional_configs is defined %}
+{% for k8s_config in k8s_additional_configs %}
+{{ k8s_config.name }}:
+  - "{{ k8s_config.value }}"
+{% endfor -%}
+{% endif %}
