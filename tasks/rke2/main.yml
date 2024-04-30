@@ -3,14 +3,14 @@
   # BOOTSTRAP
   - name: rke2 boostrap initial server node
     ansible.builtin.shell: "{{ k8s_install_script }}"
-    environment: "{{ k8s_env | combine({'INSTALL_RKE2_TYPE': 'server'}) }}"
+    environment: "{{ k8s_env }}"
     when:
       - k8s_node_type == "bootstrap"
 
   - name: rke2 template cni manifests
     ansible.builtin.template:
-      src: "templates/{{ k8s_type }}-{{ k8s_cni_type }}-config.yaml.j2"
-      dest: "{{ k8s_manifests_path }}/{{ k8s_type }}-{{ k8s_cni_type }}-config.yaml"
+      src: "templates/{{ k8s_type }}-{{ k8s_cni_type | d('canal') }}-config.yaml.j2"
+      dest: "{{ k8s_manifests_path }}/{{ k8s_type }}-{{ k8s_cni_type | d('canal') }}-config.yaml"
       mode: 0600
     when:
       - k8s_node_type == "bootstrap"
@@ -23,14 +23,14 @@
   # ADD SERVERS
   - name: rke2 add additional server nodes
     ansible.builtin.shell: "{{ k8s_install_script }}"
-    environment: "{{ k8s_env | combine({'INSTALL_RKE2_TYPE': 'server'}) }}"
+    environment: "{{ k8s_env }}"
     when:
       - k8s_node_type == "server"
 
   # ADD AGENTS
   - name: rke2 add agent nodes
     ansible.builtin.shell: "{{ k8s_install_script }}"
-    environment: "{{ k8s_env | combine({'INSTALL_RKE2_TYPE': 'agent'}) }}"
+    environment: "{{ k8s_env }}"
     when:
       - k8s_node_type == "agent"
 

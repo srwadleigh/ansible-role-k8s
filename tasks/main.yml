@@ -10,10 +10,10 @@
       local_user: "{{ lookup('env', 'USER') }}"
       delegate_to: localhost
 
-  # useful to set this bc k8s_node_type has a special value bootstrap which is not an actual type
+  # resolve actual node type, boostrap is not recognized 
   - name: set true node type
     set_fact:
-      node_type: "{{ 'agent' if k8s_node_type == 'agent' else 'server' }}"
+      node_type: "{{ 'server' if k8s_node_type == 'bootstrap' else k8s_node_type }}"
 
   - name: load type specific values
     ansible.builtin.include_vars:
@@ -50,7 +50,7 @@
 
   - name: download install script
     ansible.builtin.get_url:
-      url: "{{ k8s_install_url }}"
+      url: "{{ k8s_install_url | d(k8s_default_install_url) }}"
       timeout: 120
       dest: "{{ k8s_install_script }}"
       owner: root

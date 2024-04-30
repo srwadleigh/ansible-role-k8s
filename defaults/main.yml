@@ -6,14 +6,17 @@ k8s_action: create
 
 # k3s | rke2
 k8s_type: k3s
-k8s_channel: stable
 
 k8s_cluster_name: default
 k8s_cluster_url: localhost
-
-# bootstrap | server | agent
-k8s_node_type: bootstrap
 k8s_node_ip: "{{ ansible_host }}"
+
+# paths
+k8s_install_script: /usr/local/bin/{{ k8s_type }}-install.sh
+k8s_config_path: "/etc/rancher/{{ k8s_type }}"
+k8s_cmd_path: /usr/local/bin
+k8s_nm_path: /etc/NetworkManager/conf.d
+k8s_manifests_path: "/var/lib/rancher/{{ k8s_type }}/server/manifests/"
 
 # sysctl set fs.inotify.max_user_instances
 k8s_inotify_max: 1024
@@ -21,46 +24,58 @@ k8s_inotify_max: 1024
 # hardcoded kublet default value is 110
 k8s_pod_limit: 110
 
-# we can set this by platform later
+# overriden by vars/sysetms/
 k8s_selinux: false
 
-# if the host is using network manager, see vars/sys/ for overrides
+# if the host is using network manager, overriden by vars/sysetms/ 
 k8s_has_nm: false
 
-# if the host is using an http proxy
+# if the host is using an http proxy for external access
 k8s_http_proxy: false
 
-# cni
-# k8s_cni_type:
-
+# kubeconfig chmod
 k8s_config_mode: 600
+
+# rke2 server listens on a dedicatged port for new nodes to register
+k8s_supervisor_port: 9345
+
+# shared k8s api port
 k8s_api_port: 6443
+
+# misc options
 k8s_debug: false
-k8s_skip_start: false
 k8s_taint_servers: false
 k8s_flannel_wireguard: false
 k8s_disable_kube_proxy: false
+k8s_disable_network_policy: false
 
-# paths
-k8s_install_script: /usr/local/bin/{{ k8s_type }}-install.sh
-k8s_config_path: "/etc/rancher/{{ k8s_type }}"
-k8s_cmd_path: /usr/local/bin
-k8s_nm_path: /etc/NetworkManager/conf.d
+# k8s_kubelet_args
+#  - "kube-reserved=cpu=500m,memory=1Gi,ephemeral-storage=2Gi"
+#  - "system-reserved=cpu=500m,memory=1Gi,ephemeral-storage=2Gi"
+#  - "eviction-hard=memory.available<500Mi,nodefs.available<10%"
+#  - "max-pods={{ k8s_pod_limit }}"
+#  - "v=2"
+k8s_kubelet_args:
+ - "max-pods={{ k8s_pod_limit }}"
 
-k8s_manifests_path: "/var/lib/rancher/{{ k8s_type }}/server/manifests/"
+# Define
+
+# you can pre-generate this ina vault with the token.sh script
+# k8s_cluster_token
+
+# stable, latest, testing, ...
+# k8s_channel: stable
+
+# k8s_version to deploy a specific version
+# k8s_version: v1.27.7+k3s2
+
+# bootstrap | server | agent
+# k8s_node_type: bootstrap
 
 # if defined, install manifests
 # k8s_manifests:
 #  - name: cert-manager
 #    path: https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.yaml
-
-# Override
-# k8s_cluster_name
-# k8s_cluster_url
-
-# Define
-# k8s_cluster_token
-# you can pre-generate this ina vault with the token.sh script
 
 # k8s_node_taints
 # --node-taint CriticalAddonsOnly=true:NoExecute
@@ -69,15 +84,30 @@ k8s_manifests_path: "/var/lib/rancher/{{ k8s_type }}/server/manifests/"
 #    value: true
 #    effect: NoExecute
 
-# these are provided simply for the opportunity to override in cases where some ajustment isnt supported by the config templates
-# k8s_install_bootstrap: >-
-#  server --cluster-init --tls-san {{ k8s_cluster_url }} --node-taint CriticalAddonsOnly=true:NoExecute
-#  {% if k8s_disable is defined %}
-#  {% for disable in k8s_disable %}
-#  --disable={{ disable }}
-#  {% endfor %}
-#  {% endif %}
 
-# k8s_install_agent: >-
-#  agent --kubelet-arg=config=/etc/rancher/k3s/kubelet.config --node-ip={{ ansible_host }}
-#  {% if k8s_external_ip is defined %}--node-external-ip={{ k8s_external_ip }}{% endif %}
+# K3S
+
+# flannel-backend: 'vxlan', 'host-gw', 'wireguard-native', 'none'
+# k8s_flannel_backend: vxlan
+# k8s_flannel_ipv6_masq: false
+# k8s_flannel_external_ip: false
+
+# disable builtin services
+# k8s_disable: 
+#  - traefik
+#  - servicelb
+
+
+# RKE2
+
+# canal, cilium, calico, flannel
+# k8s_cni_type: canal
+
+# disable builtin services
+# k8s_disable: 
+#  - rke2-coredns
+#  - rke2-ingress-nginx
+#  - rke2-metrics-server
+#  - rke2-snapshot-controller
+#  - rke2-snapshot-controller-crd
+#  - rke2-snapshot-validation-webhook

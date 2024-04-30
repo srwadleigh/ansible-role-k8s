@@ -22,12 +22,26 @@ tls-san: {{ k8s_cluster_url }}
 selinux: true
 {% endif -%}
 
+{% if k8s_disable_kube_proxy and k8s_node_type != "agent" -%}
+disable-kube-proxy: true
+{% endif -%}
+{% if k8s_disable_network_policy and k8s_node_type != "agent" -%}
+disable-network-policy: true
+{% endif -%}
+
 {% if k8s_disable is defined and k8s_node_type != "agent" %}
 # disable builtin services
 {% for disable in k8s_disable %}
 disable: {{ disable }}
 {% endfor -%}
 {% endif -%}
+{% endif %}
+
+{% if k8s_flannel_backend is defined and k8s_node_type != "agent" -%}
+# cofigure or disable flannel cni
+flannel-backend: {{ k8s_flannel_backend | d('vxlan') }}
+flannel-ipv6-masq: {{ k8s_flannel_ipv6_masq | d('false') }}
+flannel-external-ip: {{ k8s_flannel_external_ip | d('false') }}
 {% endif %}
 
 # node network
@@ -37,13 +51,6 @@ node-ip: {{ k8s_node_ip }}
 {% if k8s_external_ip is defined -%}
 node-external-ip: {{ k8s_external_ip }}
 {% endif -%}
-
-{% if k8s_flannel_backend is defined and k8s_node_type != "agent" -%}
-# cofigure or disable flannel cni
-flannel-backend: {{ k8s_flannel_backend }}
-flannel-ipv6-masq: {{ k8s_flannel_ipv6_masq }}
-flannel-external-ip: {{ k8s_flannel_external_ip }}
-{% endif %}
 
 {% if k8s_node_taints is defined -%}
 # initial node taints

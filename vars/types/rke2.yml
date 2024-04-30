@@ -1,41 +1,11 @@
 ---
 # See https://docs.rke2.io/
 
-# define k8s_version to deploy a specific version
-# channel: stable, latest, testing
-k8s_install_url: https://get.rke2.io
-k8s_channel_url: https://update.rke2.io/v1-release/channels
-k8s_cmd_path: /usr/bin
-
-# rke2 server listens on a dedicatged port for new nodes to register
-k8s_supervisor_port: 9345
-
-# canal, cilium, calico, flannel
-k8s_cni_type: canal
-
-# disable builtin services
-# k8s_disable: 
-#  - rke2-coredns
-#  - rke2-ingress-nginx
-#  - rke2-metrics-server
-#  - rke2-snapshot-controller
-#  - rke2-snapshot-controller-crd
-#  - rke2-snapshot-validation-webhook
-
-# kubelet configs
-#  - "kube-reserved=cpu=500m,memory=1Gi,ephemeral-storage=2Gi"
-#  - "system-reserved=cpu=500m,memory=1Gi,ephemeral-storage=2Gi"
-#  - "eviction-hard=memory.available<500Mi,nodefs.available<10%"
-k8s_kubelet_args:
- - "max-pods={{ k8s_pod_limit }}"
+k8s_default_install_url: https://get.rke2.io
+k8s_default_channel_url: https://update.rke2.io/v1-release/channels
 
 k8s_env:
-  INSTALL_RKE2_CHANNEL_URL: "{{ k8s_channel_url }}"
-  INSTALL_RKE2_CHANNEL: "{{ k8s_channel }}"
-
-  # will attempt to download from channel if not specified
+  INSTALL_RKE2_CHANNEL_URL: "{{ k8s_channel_url | d(k8s_default_channel_url) }}"
+  INSTALL_RKE2_CHANNEL: "{{ k8s_channel | d('stable') }}"
   INSTALL_RKE2_VERSION: "{{ k8s_version | d() }}"
-
-  # server or agent
-  #INSTALL_RKE2_TYPE: "{{ k8s_channel }}"
-  
+  INSTALL_RKE2_TYPE: "{{ node_type }} {{ node_install_args | d() }}"
