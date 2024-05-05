@@ -100,7 +100,21 @@
       - k8s-get-kubeconf
   
   # DEPLOY MANIFESTS
-  
+  - name: apply manifests
+    ansible.builtin.get_url:
+      url: "{{ item.url }}"
+      timeout: 120
+      dest: "{{ k8s_manifests_path }}"
+      owner: root
+      group: root
+      mode: 0644
+    loop: "{{ k8s_manifests }}"
+    when:
+      - k8s_node_type == "bootstrap"
+      - k8s_manifests is defined
+    tags:
+      - k8s-apply-manifests
+
   # END Cluster Creation
   when: 
     - k8s_action == "create"

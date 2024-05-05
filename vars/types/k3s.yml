@@ -5,9 +5,8 @@ k8s_default_install_url: https://get.k3s.io
 k8s_default_channel_url: https://update.k3s.io/v1-release/channels
 
 k8s_env:
-  #K3S_KUBECONFIG_MODE: "{{ k8s_config_mode }}"
-  INSTALL_K3S_SKIP_START: "{{ k8s_skip_start | d('false') }}"
   INSTALL_K3S_CHANNEL_URL: "{{ k8s_channel_url | d(k8s_default_channel_url) }}"
   INSTALL_K3S_CHANNEL: "{{ k8s_channel | d('stable') }}"
   INSTALL_K3S_VERSION: "{{ k8s_version | d() }}"
-  INSTALL_K3S_EXEC: "{{ node_type }} {{ node_install_args | d() }}"
+  INSTALL_K3S_EXEC: "{{ node_type | d('server') }}"
+  INSTALL_K3S_SKIP_START: "{{ k8s_skip_start | d('false') }}"

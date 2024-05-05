@@ -8,4 +8,4 @@ k8s_env:
   INSTALL_RKE2_CHANNEL_URL: "{{ k8s_channel_url | d(k8s_default_channel_url) }}"
   INSTALL_RKE2_CHANNEL: "{{ k8s_channel | d('stable') }}"
   INSTALL_RKE2_VERSION: "{{ k8s_version | d() }}"
-  INSTALL_RKE2_TYPE: "{{ node_type }} {{ node_install_args | d() }}"
+  INSTALL_RKE2_TYPE: "{{ node_type | d('server') }}"

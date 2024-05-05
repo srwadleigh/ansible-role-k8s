@@ -14,9 +14,9 @@ k8s_node_ip: "{{ ansible_host }}"
 # paths
 k8s_install_script: /usr/local/bin/{{ k8s_type }}-install.sh
 k8s_config_path: "/etc/rancher/{{ k8s_type }}"
-k8s_cmd_path: /usr/local/bin
-k8s_nm_path: /etc/NetworkManager/conf.d
 k8s_manifests_path: "/var/lib/rancher/{{ k8s_type }}/server/manifests/"
+k8s_nm_path: /etc/NetworkManager/conf.d
+k8s_cmd_path: /usr/local/bin
 
 # sysctl set fs.inotify.max_user_instances
 k8s_inotify_max: 1024
@@ -45,9 +45,8 @@ k8s_api_port: 6443
 # misc options
 k8s_debug: false
 k8s_taint_servers: false
-k8s_flannel_wireguard: false
 k8s_disable_kube_proxy: false
-k8s_disable_network_policy: false
+k8s_flannel_wireguard: false
 
 # k8s_kubelet_args
 #  - "kube-reserved=cpu=500m,memory=1Gi,ephemeral-storage=2Gi"
@@ -57,6 +56,7 @@ k8s_disable_network_policy: false
 #  - "v=2"
 k8s_kubelet_args:
  - "max-pods={{ k8s_pod_limit }}"
+
 
 # Define
 
@@ -72,10 +72,10 @@ k8s_kubelet_args:
 # bootstrap | server | agent
 # k8s_node_type: bootstrap
 
-# if defined, install manifests
+# if defined, install manifests from the supplied url, currently this task only supports fetching from a url
 # k8s_manifests:
 #  - name: cert-manager
-#    path: https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.yaml
+#    url: https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.yaml
 
 # k8s_node_taints
 # --node-taint CriticalAddonsOnly=true:NoExecute
@@ -92,6 +92,8 @@ k8s_kubelet_args:
 # k8s_flannel_ipv6_masq: false
 # k8s_flannel_external_ip: false
 
+# k8s_disable_network_policy: true
+
 # disable builtin services
 # k8s_disable: 
 #  - traefik
@@ -102,6 +104,13 @@ k8s_kubelet_args:
 
 # canal, cilium, calico, flannel
 # k8s_cni_type: canal
+
+# apply manifest overrides
+# k8s_cni_manifest_overrides: true
+
+# cilium
+# k8s_cilium_hubble: true
+# k8s_cilium_eni: true
 
 # disable builtin services
 # k8s_disable: 

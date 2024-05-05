@@ -1,5 +1,5 @@
 
-# template generated via ansible by {{ local_user }} at {{ ansible_date_time.date }} {{ ansible_date_time.time }}
+# template generated via ansible by {{ local_user }} at {{ ansible_date_time.time }} {{ ansible_date_time.date }}
 # /var/lib/rancher/rke2/server/manifests/rke2-canal-config.yaml
 ---
 apiVersion: helm.cattle.io/v1
@@ -13,5 +13,7 @@ spec:
 {% if k8s_flannel_wireguard %}
       backend: "wireguard"
 {% else %}
+{% if k8s_cni_interface is defined %}
       iface: "{{ k8s_cni_interface }}"
+{% endif %}
 {% endif %}

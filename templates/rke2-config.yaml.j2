@@ -1,4 +1,4 @@
-# template generated via ansible by {{ local_user }} at {{ ansible_date_time.date }} {{ ansible_date_time.time }}
+# template generated via ansible by {{ local_user }} at {{ ansible_date_time.time }} {{ ansible_date_time.date }}
 
 token: {{ k8s_cluster_token }}
 {% if k8s_cluster_url is defined and k8s_node_type != "bootstrap" -%}
@@ -40,13 +40,6 @@ node-ip: {{ k8s_node_ip }}
 {% if k8s_external_ip is defined -%}
 node-external-ip: {{ k8s_external_ip }}
 {% endif -%}
-
-{% if k8s_flannel_backend is defined and k8s_node_type != "agent" -%}
-# cofigure or disable flannel cni
-flannel-backend: {{ k8s_flannel_backend }}
-flannel-ipv6-masq: {{ k8s_flannel_ipv6_masq }}
-flannel-external-ip: {{ k8s_flannel_external_ip }}
-{% endif %}
 
 {% if k8s_node_taints is defined -%}
 # initial node taints

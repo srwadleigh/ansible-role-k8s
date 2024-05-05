@@ -1,4 +1,4 @@
-# template generated via ansible by {{ local_user }} at {{ ansible_date_time.date }} {{ ansible_date_time.time }}
+# template generated via ansible by {{ local_user }} at {{ ansible_date_time.time }} {{ ansible_date_time.date }}
 # /var/lib/rancher/rke2/server/manifests/rke2-cilium-config.yaml
 ---
 apiVersion: helm.cattle.io/v1
@@ -8,18 +8,20 @@ metadata:
   namespace: kube-system
 spec:
   valuesContent: |-
+{% if k8s_cilium_eni is defined and k8s_cilium_eni %}
     eni:
       enabled: true
+{% endif -%}
 {% if k8s_disable_kube_proxy %}
       kubeProxyReplacement: true
       k8sServiceHost: {{ k8s_cluster_url }}
       k8sServicePort: {{ k8s_api_port }}
-{% endif %}
-{% if k8s_cilium_hubble %}
+{% endif -%}
+{% if k8s_cilium_hubble is defined and k8s_cilium_hubble %}
       hubble:
-      enabled: true
+        enabled: true
       relay:
         enabled: true
       ui:
         enabled: true
-{% endif %}
+{% endif -%}

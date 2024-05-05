@@ -1,4 +1,4 @@
-# template generated via ansible by {{ local_user }} at {{ ansible_date_time.date }} {{ ansible_date_time.time }}
+# template generated via ansible by {{ local_user }} at {{ ansible_date_time.time }} {{ ansible_date_time.date }}
 
 token: {{ k8s_cluster_token }}
 {% if k8s_cluster_url is defined and k8s_node_type != "bootstrap" -%}
@@ -25,9 +25,9 @@ selinux: true
 {% if k8s_disable_kube_proxy and k8s_node_type != "agent" -%}
 disable-kube-proxy: true
 {% endif -%}
-{% if k8s_disable_network_policy and k8s_node_type != "agent" -%}
+{% if k8s_disable_network_policy is defined and k8s_disable_network_policy and k8s_node_type != "agent" -%}
 disable-network-policy: true
-{% endif -%}
+{% endif %}
 
 {% if k8s_disable is defined and k8s_node_type != "agent" %}
 # disable builtin services
