@@ -1,4 +1,6 @@
-# ansible-roles-k8s
+# ansible-role-k8s
+
+Ansible role for configuring k3s and rke2 kubernetes clusters
 
 - https://docs.k3s.io/
 - https://docs.rke2.io/
@@ -10,13 +12,10 @@
 
 There is an included helper script to install common tools `scripts/get-kube-tools.sh`
 
-  - `yq` required on the local system for the kubectl formatting task which places an updated kubeconfig in the local ~/.kube
-
-  - `kubectl` required on the local system for basic cluster mangement and application of locally stored manifests or secrets
-
-  - `helm` required on the local system for helm deployments that use locally stored value files, otherwise this is handled on the bootstrap node
-
-  - `kubie` recommened on the local system for context management after deployment
+- `yq` required on the local system for the kubectl formatting task which places an updated kubeconfig in the local ~/.kube
+- `kubectl` required on the local system for basic cluster mangement and application of locally stored manifests or secrets
+- `helm` required on the local system for helm deployments that use locally stored value files, otherwise this is handled on the bootstrap node
+- `kubie` recommened on the local system for context management after deployment
 
 
 ## Setup
