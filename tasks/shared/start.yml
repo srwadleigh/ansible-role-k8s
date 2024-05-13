@@ -1,6 +1,4 @@
 ---
-
-# handlers dont execute in time so we include this as a task
 - name: enable "{{ k8s_type }}" service
   ansible.builtin.systemd:
     name: "{{ k8s_type }}-{{ node_type }}"

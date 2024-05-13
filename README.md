@@ -1,16 +1,28 @@
 # ansible-roles-k8s
 
- - https://docs.k3s.io/
- - https://docs.rke2.io/
- - https://kube-vip.io/
- - https://github.com/sbstp/kubie
- - https://kubernetes.io/docs/tasks/tools/
+- https://docs.k3s.io/
+- https://docs.rke2.io/
+- https://kube-vip.io/
+- https://github.com/sbstp/kubie
+- https://kubernetes.io/docs/tasks/tools/
 
 ## Requirements
 
-Install `yq` on the local system, this is required for the kubectl formatting handler which places an updated kubeconfig in the local ~/.kube
+There is an included helper script to install common tools `scripts/get-kube-tools.sh`
 
-Recommended `kubie` for context management after deployment
+  - `yq` required on the local system for the kubectl formatting task which places an updated kubeconfig in the local ~/.kube
+
+  - `kubectl` required on the local system for basic cluster mangement and application of locally stored manifests or secrets
+
+  - `helm` required on the local system for helm deployments that use locally stored value files, otherwise this is handled on the bootstrap node
+
+  - `kubie` recommened on the local system for context management after deployment
+
+
+## Setup
+
+There is a helper script `scripts/token-vault.sh` which pre-generates a cluster token and places it in an encrypted vault file
+
 
 ## Cluster Example
 
@@ -108,7 +120,13 @@ kubectl get pods,svc,ds --all-namespaces
 Deploy
 
 ```
-ansible-playbook -i hosts site.yml --tags=firewalld,k8s --limit=somehost
+ansible-playbook -i hosts site.yml --tags=firewalld,k8s --limit=k8s_somecluster
+```
+
+Adding a node, simply add the new host to the cluster group with its defined role and deploy
+
+```
+ansible-playbook -i hosts site.yml --tags=firewalld,k8s --limit=just_the_new_host
 ```
 
 Remove firewall role

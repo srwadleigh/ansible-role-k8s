@@ -42,8 +42,8 @@
 
   - name: template rke2 http proxy
     ansible.builtin.template:
-      src: "templates/{{ k8s_type }}-proxy.j2"
-      dest: "/etc/default/rke2-{{ node_type }}"
+      src: "templates/{{ k8s_type }}/proxy.j2"
+      dest: "/etc/default/{{ k8s_type }}-{{ node_type }}"
       mode: 0644
     when:
       - http_proxy.stdout != ""

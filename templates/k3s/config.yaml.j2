@@ -2,7 +2,10 @@
 
 token: {{ k8s_cluster_token }}
 {% if k8s_cluster_url is defined and k8s_node_type != "bootstrap" -%}
-server: https://{{ k8s_cluster_url }}:{{ k8s_supervisor_port }}
+server: https://{{ k8s_cluster_url }}:{{ k8s_api_port }}
+{% endif -%}
+{% if k8s_node_type == "bootstrap" -%}
+cluster-init: true
 {% endif -%}
 debug: {{ k8s_debug | string | lower }}
 {% if k8s_node_type != "agent" -%}
@@ -15,22 +18,30 @@ tls-san:
 {% elif k8s_cluster_url is defined and k8s_node_type != "agent" -%}
 tls-san: {{ k8s_cluster_url }}
 {% endif %}
-{% if k8s_selinux -%}
+{% if k8s_selinux is defined and k8s_selinux -%}
 selinux: true
 {% endif -%}
 
-{% if k8s_cni_type is defined -%}
-cni: {{ k8s_cni_type }}
-{% endif -%}
-{% if k8s_disable_kube_proxy %}
+{% if k8s_disable_kube_proxy and k8s_node_type != "agent" -%}
 disable-kube-proxy: true
 {% endif -%}
+{% if k8s_disable_network_policy is defined and k8s_disable_network_policy and k8s_node_type != "agent" -%}
+disable-network-policy: true
+{% endif %}
+
 {% if k8s_disable is defined and k8s_node_type != "agent" %}
 # disable builtin services
 {% for disable in k8s_disable %}
 disable: {{ disable }}
 {% endfor -%}
 {% endif -%}
+{% endif %}
+
+{% if k8s_flannel_backend is defined and k8s_node_type != "agent" -%}
+# cofigure or disable flannel cni
+flannel-backend: {{ k8s_flannel_backend | d('vxlan') }}
+flannel-ipv6-masq: {{ k8s_flannel_ipv6_masq | d('false') }}
+flannel-external-ip: {{ k8s_flannel_external_ip | d('false') }}
 {% endif %}
 
 # node network

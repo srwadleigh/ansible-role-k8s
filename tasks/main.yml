@@ -32,8 +32,9 @@
 #
 # CREATE CLUSTER
 #
-- name: Cluster Creation
-  tags: k8s
+- name: Create Cluster
+  tags: 
+    - k8s
   block:
   
   - name: load server node taints
@@ -71,7 +72,7 @@
   
   - name: template cluster config
     ansible.builtin.template:
-      src: "templates/{{ k8s_type }}-config.yaml.j2"
+      src: "templates/{{ k8s_type }}/config.yaml.j2"
       dest: "{{ k8s_config_path }}/config.yaml"
       mode: 0600
     tags:
@@ -83,39 +84,54 @@
       - k8s-config
 
   # DEPLOY CLUSTER
-  - name: beging cluster creation
+  - name: begining cluster creation
     ansible.builtin.include_tasks: "{{ k8s_type }}/main.yml"
 
-  # KUBE CONFIG
-  - name: fetch kube config
-    ansible.builtin.fetch:
-      src: "{{ k8s_config_path }}/{{ k8s_type }}.yaml"
-      dest: "~/.kube/config-{{ k8s_cluster_name }}.yaml"
-      flat: yes
-    notify: 
-      - k8s-update-local-config
-    when: 
+  # END Cluster Creation
+  when: 
+    - k8s_action == "create"
+
+#
+# POST-DEPLOY
+#
+- name: Post Deployments
+  tags: 
+    - k8s
+    - k8s-post-deploy
+  block:
+
+  - name: include kubeconf block
+    ansible.builtin.include_tasks: "shared/kubeconf.yml"
+    when:
       - k8s_node_type == "bootstrap"
     tags:
       - k8s-get-kubeconf
-  
-  # DEPLOY MANIFESTS
-  - name: apply manifests
-    ansible.builtin.get_url:
-      url: "{{ item.url }}"
-      timeout: 120
-      dest: "{{ k8s_manifests_path }}"
-      owner: root
-      group: root
-      mode: 0644
-    loop: "{{ k8s_manifests }}"
+
+  - name: include secret block
+    ansible.builtin.include_tasks: "shared/secrets.yml"
+    when:
+      - k8s_node_type == "bootstrap"
+      - k8s_secrets is defined
+    tags:
+      - k8s-apply-secrets
+
+  - name: include manifest block
+    ansible.builtin.include_tasks: "shared/manifests.yml"
     when:
       - k8s_node_type == "bootstrap"
       - k8s_manifests is defined
     tags:
       - k8s-apply-manifests
 
-  # END Cluster Creation
+  - name: include chart block
+    ansible.builtin.include_tasks: "shared/charts.yml"
+    when:
+      - k8s_node_type == "bootstrap"
+      - k8s_charts is defined
+    tags:
+      - k8s-apply-charts
+
+  # END Post Deployments
   when: 
     - k8s_action == "create"
 
@@ -123,7 +139,7 @@
 # DESTORY CLUSTER
 #
 # this is very dangerous and should be handled with care when not actively testing with disposable cluster iterations
-- name: Destroy K8s cluster
+- name: Destroy Cluster
   tags: k8s
   block:
 

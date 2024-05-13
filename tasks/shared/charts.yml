@@ -1,0 +1,37 @@
+---
+- name: begining chart deployments
+  run_once: true
+  tags: 
+    - k8s
+    - k8s-apply-charts
+  block:
+
+  - name: download helm install script
+    ansible.builtin.get_url:
+      url: "{{ k8s_helm_install_url }}"
+      timeout: 120
+      dest: "{{ k8s_helm_install_script }}"
+      owner: root
+      group: root
+      mode: 0700
+  
+  - name: install helm
+    ansible.builtin.shell: "{{ k8s_helm_install_script }}"
+
+  - name: Add chart repos
+    kubernetes.core.helm_repository:
+      name: "{{ item.repo_name }}"
+      repo_url: "{{ item.repo_url }}"
+    loop: "{{ k8s_charts }}"
+    when:
+      - item.repo_name is defined
+      - item.repo_url is defined
+  
+  - name: apply helm charts
+    ansible.builtin.shell: |
+      helm repo update
+      helm upgrade --kubeconfig {{ k8s_config_path }}/{{ k8s_type }}.yaml --namespace {{ item.namespace | d('default') }} --create-namespace --install {{ item.name }} {{ item.chart }} {% if item.chart_version is defined %}--version {{ item.chart_version }}{% endif %} {% if item.settings is defined %}{% for setting in item.settings %}--set {{ setting.key }}={{ setting.value }} {% endfor %}{% endif %}  
+    loop: "{{ k8s_charts }}"
+    when:
+      - item.name is defined
+      - item.chart is defined

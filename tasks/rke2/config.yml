@@ -9,11 +9,11 @@
   # CANAL NM CONFIG
   - name: template nm canal config
     ansible.builtin.template:
-      src: "templates/{{ k8s_type }}-canal.conf.j2"
+      src: "templates/{{ k8s_type }}/canal.conf.j2"
       dest: "{{ k8s_nm_path }}/{{ k8s_type }}-canal.conf"
       mode: 0600
     when:
       - k8s_cni_type is not defined or k8s_cni_type == "canal"
-      - k8s_has_nm
+      - k8s_has_nm is defined and k8s_has_nm
     tags:
       - k8s-config

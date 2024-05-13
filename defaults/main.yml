@@ -9,14 +9,35 @@ k8s_type: k3s
 
 k8s_cluster_name: default
 k8s_cluster_url: localhost
+
+# Additionally define k8s_external_ip to provide a specific node an external route
 k8s_node_ip: "{{ ansible_host }}"
 
 # paths
-k8s_install_script: /usr/local/bin/{{ k8s_type }}-install.sh
-k8s_config_path: "/etc/rancher/{{ k8s_type }}"
-k8s_manifests_path: "/var/lib/rancher/{{ k8s_type }}/server/manifests/"
+# used for placing nm related configs
 k8s_nm_path: /etc/NetworkManager/conf.d
+
+# used by k8s binaries, depends on installation method: rpm vs tar
 k8s_cmd_path: /usr/local/bin
+
+# location of install scripts and other tools
+k8s_install_path: /usr/local/bin
+
+k8s_install_script: "{{ k8s_install_path }}/{{ k8s_type }}-install.sh"
+k8s_manifests_path: "/var/lib/rancher/{{ k8s_type }}/server/manifests/"
+k8s_config_path: "/etc/rancher/{{ k8s_type }}"
+
+k8s_helm_install_url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+k8s_helm_install_script: "{{ k8s_install_path }}/get_helm.sh"
+
+# apply CriticalAddonsOnly:NoExecute to control plane nodes
+k8s_taint_servers: false
+
+# shared k8s api port
+k8s_api_port: 6443
+
+# rke2 server listens on a dedicatged port for new nodes to register
+k8s_supervisor_port: 9345
 
 # sysctl set fs.inotify.max_user_instances
 k8s_inotify_max: 1024
@@ -24,29 +45,37 @@ k8s_inotify_max: 1024
 # hardcoded kublet default value is 110
 k8s_pod_limit: 110
 
-# overriden by vars/sysetms/
-k8s_selinux: false
-
-# if the host is using network manager, overriden by vars/sysetms/ 
-k8s_has_nm: false
-
 # if the host is using an http proxy for external access
 k8s_http_proxy: false
 
 # kubeconfig chmod
 k8s_config_mode: 600
 
-# rke2 server listens on a dedicatged port for new nodes to register
-k8s_supervisor_port: 9345
-
-# shared k8s api port
-k8s_api_port: 6443
-
-# misc options
-k8s_debug: false
-k8s_taint_servers: false
 k8s_disable_kube_proxy: false
-k8s_flannel_wireguard: false
+k8s_debug: false
+
+k8s_kubelet_args:
+ - "max-pods={{ k8s_pod_limit }}"
+
+# cluster issuers
+# k8s_cluster_issuers:
+#  - name: letsencrypt-prod
+#    url: https://acme-v02.api.letsencrypt.org/directory
+#    solvers: 
+#      - type: http
+#        ingress: nginx
+#      - type: dns
+#        provider: cloudflare
+#        tokenref: apiTokenSecretRef
+#        secret_name: cloudflare-api-token
+#        secret_ley: api-token
+
+# cluster secrets
+# k8s_secrets:
+#  - name: cloudflare-api-token
+#    namespace: cert-manager
+#    data: api-token
+#    value: ZG9wX3Y...
 
 # k8s_kubelet_args
 #  - "kube-reserved=cpu=500m,memory=1Gi,ephemeral-storage=2Gi"
@@ -54,11 +83,13 @@ k8s_flannel_wireguard: false
 #  - "eviction-hard=memory.available<500Mi,nodefs.available<10%"
 #  - "max-pods={{ k8s_pod_limit }}"
 #  - "v=2"
-k8s_kubelet_args:
- - "max-pods={{ k8s_pod_limit }}"
-
 
 # Define
+
+# Default is assumed false, set by vars/sysetms/
+# k8s_selinux: false
+
+# k8s_acme_email
 
 # you can pre-generate this ina vault with the token.sh script
 # k8s_cluster_token
@@ -102,11 +133,17 @@ k8s_kubelet_args:
 
 # RKE2
 
+# Default is false, if the host is using network manager, overriden by vars/sysetms/ 
+# k8s_has_nm: true
+
 # canal, cilium, calico, flannel
 # k8s_cni_type: canal
 
 # apply manifest overrides
 # k8s_cni_manifest_overrides: true
+
+# when using canal enable wg backend
+# k8s_canal_wireguard: true
 
 # cilium
 # k8s_cilium_hubble: true

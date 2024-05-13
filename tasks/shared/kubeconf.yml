@@ -1,0 +1,23 @@
+---
+- name: fetch and update kubeconf
+  run_once: true
+  tags: 
+    - k8s
+    - k8s-get-kubeconf
+  block:
+
+  - name: fetch kubeconfig
+    ansible.builtin.fetch:
+      src: "{{ k8s_config_path }}/{{ k8s_type }}.yaml"
+      dest: "~/.kube/config-{{ k8s_cluster_name }}.yaml"
+      flat: yes
+
+  - name: Update k8s Local Config
+    delegate_to: localhost
+    connection: local
+    become: false
+    ansible.builtin.shell: |
+      yq e '.clusters[].name = "{{ k8s_cluster_name }}"' -i ~/.kube/config-{{ k8s_cluster_name }}.yaml
+      yq e '.contexts[].name = "{{ k8s_cluster_context | d(k8s_cluster_name) }}"' -i ~/.kube/config-{{ k8s_cluster_name }}.yaml
+      yq e '(.clusters[] | select(.name == "{{ k8s_cluster_name }}")).cluster.server = "https://{{ k8s_cluster_url }}:{{ k8s_api_port }}"' -i ~/.kube/config-{{ k8s_cluster_name }}.yaml
+      yq e '(.contexts[] | select(.name == "{{ k8s_cluster_name }}")).context.cluster = "{{ k8s_cluster_name }}"' -i ~/.kube/config-{{ k8s_cluster_name }}.yaml

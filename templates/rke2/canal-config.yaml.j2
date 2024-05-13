@@ -10,7 +10,7 @@ metadata:
 spec:
   valuesContent: |-
     flannel:
-{% if k8s_flannel_wireguard %}
+{% if k8s_canal_wireguard is defined and k8s_canal_wireguard %}
       backend: "wireguard"
 {% else %}
 {% if k8s_cni_interface is defined %}

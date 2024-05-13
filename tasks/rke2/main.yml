@@ -9,7 +9,7 @@
 
   - name: rke2 template cni manifest override
     ansible.builtin.template:
-      src: "templates/{{ k8s_type }}-{{ k8s_cni_type | d('canal') }}-config.yaml.j2"
+      src: "templates/{{ k8s_type }}/{{ k8s_cni_type | d('canal') }}-config.yaml.j2"
       dest: "{{ k8s_manifests_path }}/{{ k8s_type }}-{{ k8s_cni_type | d('canal') }}-config.yaml"
       mode: 0600
     when:
@@ -17,7 +17,7 @@
       - k8s_node_type == "bootstrap"
 
   - name: rke2 start bootstrap node
-    ansible.builtin.include_tasks: start.yml
+    ansible.builtin.include_tasks: shared/start.yml
     when:
       - k8s_node_type == "bootstrap"
 
@@ -37,6 +37,6 @@
 
   # POST-DEPLOY
   - name: rke2 start additional nodes
-    ansible.builtin.include_tasks: start.yml
+    ansible.builtin.include_tasks: shared/start.yml
     when:
       - k8s_node_type != "bootstrap"
