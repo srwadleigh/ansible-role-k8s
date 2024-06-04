@@ -1,5 +1,5 @@
 ---
 k8s_node_taints:
-  - name: CriticalAddonsOnly
+  - key: CriticalAddonsOnly
     value: true
     effect: NoExecute

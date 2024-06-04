@@ -7,13 +7,13 @@
     when:
       - k8s_node_type == "bootstrap"
 
-  - name: rke2 template cni manifest override
+  - name: rke2 cni custom template
     ansible.builtin.template:
-      src: "templates/{{ k8s_type }}/{{ k8s_cni_type | d('canal') }}-config.yaml.j2"
-      dest: "{{ k8s_manifests_path }}/{{ k8s_type }}-{{ k8s_cni_type | d('canal') }}-config.yaml"
+      src: "templates/{{ k8s_type }}/cni/{{ k8s_cni_custom_template }}.j2"
+      dest: "{{ k8s_manifests_path }}/{{ k8s_type }}-{{ k8s_cni_custom_template }}"
       mode: 0600
     when:
-      - k8s_cni_manifest_overrides is defined and k8s_cni_manifest_overrides
+      - k8s_cni_custom_template is defined
       - k8s_node_type == "bootstrap"
 
   - name: rke2 start bootstrap node

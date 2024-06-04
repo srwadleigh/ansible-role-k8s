@@ -37,11 +37,17 @@
     - k8s
   block:
   
-  - name: load server node taints
+  - name: add generic server taint
     ansible.builtin.include_vars:
       file:  "server-taint.yml"
     when:
       - k8s_taint_servers and k8s_node_type != "agent"
+  
+  - name: add generic agent label
+    ansible.builtin.include_vars:
+      file:  "agent-label.yml"
+    when:
+      - k8s_label_agents and k8s_node_type == "agent"
   
   - name: increase open file limit
     ansible.posix.sysctl:

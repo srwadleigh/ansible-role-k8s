@@ -7,6 +7,7 @@ Ansible role for configuring k3s and rke2 kubernetes clusters
 - https://kube-vip.io/
 - https://github.com/sbstp/kubie
 - https://kubernetes.io/docs/tasks/tools/
+- https://helm.sh/
 
 ## Requirements
 

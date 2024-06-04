@@ -1,0 +1,4 @@
+---
+k8s_node_lables:
+  - key: role
+    value: agent

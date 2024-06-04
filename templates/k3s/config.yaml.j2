@@ -56,7 +56,7 @@ node-external-ip: {{ k8s_external_ip }}
 # initial node taints
 {% for taint in k8s_node_taints -%}
 node-taint:
-  - "{{ taint.name }}={{ taint.value }}:{{ taint.effect }}"
+  - "{{ taint.key }}={{ taint.value }}:{{ taint.effect }}"
 {% endfor -%}
 {% endif %}
 
@@ -64,7 +64,7 @@ node-taint:
 # initial node labels
 {% for label in k8s_node_lables -%}
 node-label:
-  - "{{ label.name }}={{ label.value }}"
+  - "{{ label.key }}={{ label.value }}"
 {% endfor -%}
 {% endif %}
 
@@ -79,7 +79,7 @@ kubelet-arg:
 
 {% if k8s_additional_configs is defined %}
 {% for k8s_config in k8s_additional_configs %}
-{{ k8s_config.name }}:
+{{ k8s_config.key }}:
   - "{{ k8s_config.value }}"
 {% endfor -%}
 {% endif %}
