@@ -112,7 +112,7 @@
       - k8s_node_type == "bootstrap"
     tags:
       - k8s-get-kubeconf
-      - "{{ k8s_get_kubeconf | d('always') }}"
+
   - name: include secret block
     ansible.builtin.include_tasks: "shared/secrets.yml"
     when:

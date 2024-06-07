@@ -7,6 +7,7 @@
   block:
 
   - name: fetch kubeconfig
+    ignore_errors: yes
     ansible.builtin.fetch:
       src: "{{ k8s_config_path }}/{{ k8s_type }}.yaml"
       dest: "$HOME/.kube/config-{{ k8s_cluster_name }}.yaml"
@@ -16,6 +17,7 @@
     delegate_to: localhost
     connection: local
     become: false
+    ignore_errors: yes
     ansible.builtin.shell: |
       yq e '.clusters[].name = "{{ k8s_cluster_name }}"' -i $HOME/.kube/config-{{ k8s_cluster_name }}.yaml
       yq e '.contexts[].name = "{{ k8s_cluster_context | d(k8s_cluster_name) }}"' -i $HOME/.kube/config-{{ k8s_cluster_name }}.yaml
