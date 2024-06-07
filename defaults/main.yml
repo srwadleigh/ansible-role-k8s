@@ -36,6 +36,9 @@ k8s_taint_servers: false
 # apply label role=agent to agent nodes
 k8s_label_agents: false
 
+# fetch kubeconfig from the bootstrap node
+k8s_get_kubeconfig: true
+
 # shared k8s api port
 k8s_api_port: 6443
 

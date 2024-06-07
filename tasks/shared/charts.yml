@@ -18,7 +18,7 @@
   - name: install helm
     ansible.builtin.shell: "{{ k8s_helm_install_script }}"
 
-  - name: Add chart repos
+  - name: add chart repos
     kubernetes.core.helm_repository:
       name: "{{ item.repo_name }}"
       repo_url: "{{ item.repo_url }}"

@@ -110,9 +110,10 @@
     ansible.builtin.include_tasks: "shared/kubeconf.yml"
     when:
       - k8s_node_type == "bootstrap"
+      - k8s_get_kubeconf
     tags:
       - k8s-get-kubeconf
-
+  
   - name: include secret block
     ansible.builtin.include_tasks: "shared/secrets.yml"
     when:
