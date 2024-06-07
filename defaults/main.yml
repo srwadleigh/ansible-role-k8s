@@ -37,7 +37,7 @@ k8s_taint_servers: false
 k8s_label_agents: false
 
 # fetch kubeconfig from the bootstrap node
-k8s_get_kubeconfig: true
+# k8s_get_kubeconfig: always | never
 
 # shared k8s api port
 k8s_api_port: 6443
