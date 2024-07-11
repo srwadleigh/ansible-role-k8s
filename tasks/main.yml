@@ -113,6 +113,14 @@
     tags:
       - k8s-get-kubeconf
 
+  - name: include secret block
+    ansible.builtin.include_tasks: "shared/secrets.yml"
+    when:
+      - k8s_node_type == "bootstrap"
+      - k8s_secrets is defined
+    tags:
+      - k8s-apply-secrets
+  
   - name: include manifest block
     ansible.builtin.include_tasks: "shared/manifests.yml"
     when:
@@ -128,14 +136,6 @@
       - k8s_charts is defined
     tags:
       - k8s-apply-charts
-
-  - name: include secret block
-    ansible.builtin.include_tasks: "shared/secrets.yml"
-    when:
-      - k8s_node_type == "bootstrap"
-      - k8s_secrets is defined
-    tags:
-      - k8s-apply-secrets
   
   # END Post Deployments
   when: 
