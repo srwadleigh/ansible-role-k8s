@@ -17,11 +17,15 @@
   
   - name: install helm
     ansible.builtin.shell: "{{ k8s_helm_install_script }}"
+    environment:
+      PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
 
   - name: add chart repos
     kubernetes.core.helm_repository:
       name: "{{ item.repo_name }}"
       repo_url: "{{ item.repo_url }}"
+    environment:
+      PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
     loop: "{{ k8s_charts }}"
     when:
       - item.repo_name is defined
@@ -31,6 +35,8 @@
     ansible.builtin.shell: |
       helm repo update
       helm upgrade --kubeconfig {{ k8s_config_path }}/{{ k8s_type }}.yaml --namespace {{ item.namespace | d('default') }} --create-namespace --install {{ item.name }} {{ item.chart }} {% if item.chart_version is defined %}--version {{ item.chart_version }}{% endif %} {% if item.settings is defined %}{% for setting in item.settings %}--set {{ setting.key }}={{ setting.value }} {% endfor %}{% endif %}  
+    environment:
+      PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
     loop: "{{ k8s_charts }}"
     when:
       - item.name is defined

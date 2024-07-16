@@ -110,6 +110,7 @@
     ansible.builtin.include_tasks: "shared/kubeconf.yml"
     when:
       - k8s_node_type == "bootstrap"
+      - k8s_kubeconfig_fetch
     tags:
       - k8s-get-kubeconf
 
@@ -136,7 +137,7 @@
       - k8s_charts is defined
     tags:
       - k8s-apply-charts
-  
+
   # END Post Deployments
   when: 
     - k8s_action == "create"
@@ -172,13 +173,13 @@
       - cluster_destruction
   
   - name: destroy nodes
-    ansible.builtin.shell: "{{ k8s_cmd_path }}/{{ k8s_type }}-uninstall.sh"
+    ansible.builtin.shell: "{{ k8s_type }}-uninstall.sh"
     when:
       - k8s_node_type != "agent" or k8s_type == "rke2"
       - cluster_destruction
 
   - name: destroy k3s agent nodes
-    ansible.builtin.shell: "{{ k8s_cmd_path }}/{{ k8s_type }}-agent-uninstall.sh"
+    ansible.builtin.shell: "{{ k8s_type }}-agent-uninstall.sh"
     when:
       - k8s_node_type == "agent" and k8s_type == "k3s"
       - cluster_destruction

@@ -4,6 +4,8 @@
 k8s_default_install_url: https://get.rke2.io
 k8s_default_channel_url: https://update.rke2.io/v1-release/channels
 
+#k8s_cmd_path: /bin
+
 k8s_env:
   INSTALL_RKE2_CHANNEL_URL: "{{ k8s_channel_url | d(k8s_default_channel_url) }}"
   INSTALL_RKE2_CHANNEL: "{{ k8s_channel | d('stable') }}"

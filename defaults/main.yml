@@ -30,6 +30,10 @@ k8s_config_path: "/etc/rancher/{{ k8s_type }}"
 k8s_helm_install_url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 k8s_helm_install_script: "{{ k8s_install_path }}/get_helm.sh"
 
+# automatically fetch kubeconfig and update context according to k8s_cluster_name
+k8s_kubeconfig_fetch: true
+k8s_kubeconfig_update_context: true
+
 # apply CriticalAddonsOnly:NoExecute to control plane nodes
 k8s_taint_servers: false
 
