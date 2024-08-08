@@ -6,6 +6,28 @@
     - k8s-apply-manifests
   block:
 
+  - name: apply local manifests
+    ansible.builtin.copy:
+      src: "manifests/{{ item.source | default(item.name + '.yaml') }}"
+      dest: "{{ k8s_manifests_path }}/{{ item.name }}.yaml"
+      owner: root
+      group: root
+      mode: 0600
+    loop: "{{ k8s_manifests }}"
+    when:
+      - item.type is undefined or item.type == "file"
+      - item.source is defined or item.name is defined
+
+  - name: apply template manifests
+    ansible.builtin.template:
+      src: "templates/{{ item.source | default('shared/' + item.name + '.yaml') }}.j2"
+      dest: "{{ k8s_manifests_path }}/{{ item.name }}.yaml"
+      mode: 0600
+    loop: "{{ k8s_manifests }}"
+    when:
+      - item.type is defined and item.type == "template"
+      - item.source is defined or item.name is defined
+
   - name: apply remote manifests
     ansible.builtin.get_url:
       url: "{{ item.source }}"
@@ -16,27 +38,5 @@
       mode: 0600
     loop: "{{ k8s_manifests }}"
     when:
-      - item.type == "url"
-      - item.source is defined
-
-  - name: apply local manifests
-    ansible.builtin.copy:
-      src: "manifests/{{ item.source }}"
-      dest: "{{ k8s_manifests_path }}/{{ item.name }}.yaml"
-      owner: root
-      group: root
-      mode: 0600
-    loop: "{{ k8s_manifests }}"
-    when:
-      - item.type == "file"
-      - item.source is defined
-
-  - name: apply template manifests
-    ansible.builtin.template:
-      src: "templates/{{ item.source }}.j2"
-      dest: "{{ k8s_manifests_path }}/{{ item.name }}.yaml"
-      mode: 0600
-    loop: "{{ k8s_manifests }}"
-    when:
-      - item.type == "template"
+      - item.type is defined and item.type == "url"
       - item.source is defined

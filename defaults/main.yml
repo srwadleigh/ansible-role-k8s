@@ -64,6 +64,15 @@ k8s_debug: false
 k8s_kubelet_args:
  - "max-pods={{ k8s_pod_limit }}"
 
+# local-path-storage default settings, see templates/shared/local-path-storage.yaml.j2
+# k8s_local_path_image: rancher/local-path-provisioner:master-head
+# k8s_local_path_image_pull_policy: IfNotPresent
+# k8s_local_path_default_class: true
+# k8s_local_path_reclaim_policy: Retain
+# k8s_local_path_bind_mode: WaitForFirstConsumer
+# k8s_local_path_priority_class: system-node-critical
+# k8s_local_path_dir: /opt/local-path-provisioner
+
 # cluster issuers
 # k8s_cluster_issuers:
 #  - name: letsencrypt-prod

@@ -14,7 +14,7 @@
       mode: 0600
     when:
       - k8s_cni_custom_template is defined
-      - k8s_node_type == "bootstrap"
+      #- k8s_node_type == "bootstrap"
 
   - name: rke2 start bootstrap node
     ansible.builtin.include_tasks: shared/start.yml
